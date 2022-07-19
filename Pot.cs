@@ -6,48 +6,90 @@ using UnityEngine.UI;
 public class Pot : MonoBehaviour
 {
     [SerializeField] GameObject Seed;
+    [SerializeField] GameObject Plant;
+    [SerializeField] GameObject Gardening_tool;
     [SerializeField] GameObject Event;
     [SerializeField] GameObject Info_UI;
     [SerializeField] Text Info_Text;
 
-    private SpriteRenderer render;
+    private SpriteRenderer Pot_render;
+    private SpriteRenderer Plant_render;
     public bool isSelected = false;
-    public bool Gargening_Start;
+    private bool Activate;
 
+    [SerializeField] int Pot_num;
     public int Plant_Type;
     //public int Pot_Type;
-    //public int Growth_State;
+    public int Growth_State;
 
 
     void Start()
     {
-        render = GetComponent<SpriteRenderer>();
-        render.color = new Color(0, 0, 0);
+        Pot_render = GetComponent<SpriteRenderer>();
+        Plant_render = Plant.GetComponent<SpriteRenderer>();
+        Pot_render.color = new Color(0, 0, 0);
 
         Info_UI.SetActive(false);
         Info_Text.text = "";
 
         Seed.SetActive(false);
+        Gardening_tool.SetActive(false);
+        Plant.SetActive(false);
     }
 
     private void Update()
     {
         if (this.tag == "Empty")
         {
-            Plant_Type = Event.GetComponent<Event_Sys>().Pot_1;
+            if (Pot_num == 1)
+            {
+                Plant_Type = Event.GetComponent<Event_Sys>().Pot_1;
+            }
+            if (Pot_num == 2)
+            {
+                Plant_Type = Event.GetComponent<Event_Sys>().Pot_2;
+            }
+            if (Pot_num == 3)
+            {
+                Plant_Type = Event.GetComponent<Event_Sys>().Pot_3;
+            }
+
 
             if (Plant_Type > 0)
             {
-                this.tag = "Used";
-                if (Gargening_Start == false)
+                
+                if (Growth_State == 0)
                 {
+                    //Plant 의 종류를 반영하고 선택 초기화
                     Seed.SetActive(false);
                     Info_UI.SetActive(false);
+
                     Info_Text.text = "";
-                    Gargening_Start = true;
+                    this.tag = "Used";
+
+                    Pot_render.color = new Color(0, 0, 0);
+                    Plant_render.color = new Color(1, 1, 1);
+
+                    isSelected = false;
+                    Growth_State = 1;
+
+                    Plant.SetActive(true);
                 }
             }
 
+        }
+
+
+        //중복 선택 방지용
+        Activate = Event.GetComponent<Event_Sys>().Activate;
+        if (Activate == false)
+        {
+            isSelected = false;
+            Seed.SetActive(false);
+            Gardening_tool.SetActive(false);
+
+            Pot_render.color = new Color(0, 0, 0);
+            Plant_render.color = new Color(1, 1, 1);
         }
     }
 
@@ -55,31 +97,60 @@ public class Pot : MonoBehaviour
     {
         if (isSelected == false)
         {
+            //화분을 선택하면 화분과 식물의 색을 바꿈
             isSelected = true;
-            render.color = new Color(0.7f, 0.7f, 0.7f);
+            Pot_render.color = new Color(0.7f, 0.7f, 0.7f);
+            Plant_render.color = new Color(0.7f, 0.7f, 0.7f);
 
             if (this.tag == "Empty")
             {
                 Seed.SetActive(true);
+                Info_UI.SetActive(false);
+                Info_Text.text = "";
             }
+
+            if (this.tag == "Used")
+            {
+                Gardening_tool.SetActive(true);
+                Info_UI.SetActive(false);
+                Info_Text.text = "";
+            }
+
         }
         else
         {
+            // 화분을 선택한 상태에서 다시 누르면 선택 초기화
             isSelected = false;
             Seed.SetActive(false);
+            Gardening_tool.SetActive(false);
+            Info_UI.SetActive(false);
+            Info_Text.text = "";
         }
     }
 
-    private void OnMouseEnter()
+    //화분에 마우스 커서를 올렸을 때 색상과 UI를 다르게 표시
+    private void OnMouseOver()
     {
         if (isSelected == false)
         {
-            render.color = new Color(0.5f, 0.5f, 0.5f);
+            Pot_render.color = new Color(0.5f, 0.5f, 0.5f);
+            Plant_render.color = new Color(0.5f, 0.5f, 0.5f);
             Info_UI.SetActive(true);
             
-            if (Plant_Type == 1)
+            if (this.tag == "Used")
             {
-                Info_Text.text = "식물A";
+                if (Plant_Type == 1)
+                {
+                    Info_Text.text = "식물A";
+                }
+                if (Plant_Type == 2)
+                {
+                    Info_Text.text = "식물B";
+                }
+                if (Plant_Type == 3)
+                {
+                    Info_Text.text = "식물C";
+                }
             }
             else
             {
@@ -92,7 +163,8 @@ public class Pot : MonoBehaviour
     {
         if (isSelected == false)
         {
-            render.color = new Color(0, 0, 0);
+            Pot_render.color = new Color(0, 0, 0);
+            Plant_render.color = new Color(1, 1, 1);
             Info_UI.SetActive(false);
             Info_Text.text = "";
         }
